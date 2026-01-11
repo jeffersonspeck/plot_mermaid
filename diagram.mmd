@@ -1,17 +1,71 @@
-flowchart LR
-  D["ExplanationDocument<br/>(IAO ICE)"] -->|hasPart| F["ExplanationFragment<br/>(IAO ICE)"]
+classDiagram
+direction LR
 
-  F -->|usesElement| E["ExplanationElement<br/>(Keyword / ContextObject / DiscursiveStrategy)"]
-  E -->|evokesIntelligence| ID["IntelligenceDisposition<br/>(BFO Disposition)"]
+class ExplanationDocument {
+  <<IAO:InformationContentEntity>>
+}
 
-  F -->|hasActivation| A["IntelligenceActivation<br/>(IAO ICE)"]
-  A -->|isAbout| ID
-  A -->|hasActivationType| T{ActivationType}
-  T --> P[Primary]
-  T --> S[Secondary]
+class ExplanationFragment {
+  <<IAO:InformationContentEntity>>
+}
 
-  A -->|hasActivationScore 0..1| SC((score))
-  A -->|denotesProcess| PR["EvocationProcess<br/>(BFO Process)"]
+class ExplanationElement {
+  <<abstract>>
+  <<IAO:InformationContentEntity>>
+}
 
-  D -->|hasProfileVector| V["MIProfileVector<br/>(IAO ICE)"]
-  V -->|miVector OR 8 scores| OUT((8D Profile))
+class Keyword {
+  <<IAO:InformationContentEntity>>
+}
+
+class ContextObject {
+  <<IAO:InformationContentEntity>>
+}
+
+class DiscursiveStrategy {
+  <<IAO:InformationContentEntity>>
+}
+
+class IntelligenceDisposition {
+  <<BFO:Disposition>>
+}
+
+class IntelligenceActivation {
+  <<IAO:InformationContentEntity>>
+  +hasActivationScore: decimal [0..1]
+}
+
+class EvocationProcess {
+  <<BFO:Process>>
+}
+
+class MIProfileVector {
+  <<IAO:InformationContentEntity>>
+  +miVector: decimal[8]
+  %% (alternativa: 8 propriedades de score, se você preferir)
+}
+
+class ActivationType {
+  <<enumeration>>
+  Primary
+  Secondary
+}
+
+%% Especializações de ExplanationElement
+ExplanationElement <|-- Keyword
+ExplanationElement <|-- ContextObject
+ExplanationElement <|-- DiscursiveStrategy
+
+%% Pertencimento / parte-de (composição)
+ExplanationDocument "1" *-- "1..*" ExplanationFragment : hasPart
+ExplanationFragment "1" *-- "0..*" IntelligenceActivation : hasActivation
+ExplanationDocument "1" *-- "0..1" MIProfileVector : hasProfileVector
+
+%% Associações semânticas
+ExplanationFragment "1" --> "0..*" ExplanationElement : usesElement
+ExplanationElement "0..*" --> "1..*" IntelligenceDisposition : evokesIntelligence
+
+IntelligenceActivation "1" --> "1" IntelligenceDisposition : isAbout
+IntelligenceActivation "1" --> "1" ActivationType : hasActivationType
+IntelligenceActivation "0..1" --> "1" EvocationProcess : denotesProcess
+
