@@ -1,0 +1,17 @@
+flowchart LR
+  D["ExplanationDocument<br/>(IAO ICE)"] -->|hasPart| F["ExplanationFragment<br/>(IAO ICE)"]
+
+  F -->|usesElement| E["ExplanationElement<br/>(Keyword / ContextObject / DiscursiveStrategy)"]
+  E -->|evokesIntelligence| ID["IntelligenceDisposition<br/>(BFO Disposition)"]
+
+  F -->|hasActivation| A["IntelligenceActivation<br/>(IAO ICE)"]
+  A -->|isAbout| ID
+  A -->|hasActivationType| T{ActivationType}
+  T --> P[Primary]
+  T --> S[Secondary]
+
+  A -->|hasActivationScore 0..1| SC((score))
+  A -->|denotesProcess| PR["EvocationProcess<br/>(BFO Process)"]
+
+  D -->|hasProfileVector| V["MIProfileVector<br/>(IAO ICE)"]
+  V -->|miVector OR 8 scores| OUT((8D Profile))
